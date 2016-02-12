@@ -43,6 +43,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
@@ -94,6 +95,7 @@ public class AutomatedWizardStep2 extends WizardPane {
     TextField minCo2Txt;
     TextField maxCo2Txt;
     
+    Alert alert;
     
     /**
      * 
@@ -115,7 +117,10 @@ public class AutomatedWizardStep2 extends WizardPane {
     @Override
     public void onEnteringPage(Wizard wizard) {
         setContent(getInit());
-        
+        alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Automated Structure Creator");
+                            alert.setHeaderText(null);
+                            alert.setContentText("JEVis Structure Created Sucessfully");
         
         ObservableList<ButtonType> list = getButtonTypes();
         for (ButtonType type : list) {
@@ -145,6 +150,9 @@ public class AutomatedWizardStep2 extends WizardPane {
      */
     @Override
     public void onExitingPage(Wizard wizard) {
+        
+
+                            
         thread.interrupt();
     }
 
@@ -216,14 +224,14 @@ public class AutomatedWizardStep2 extends WizardPane {
                     chooseBtn.setVisible(true);
                     fileTxt.setVisible(true);
                     
-                    localManagerIPLbl.setText("Local Manager IP(optional):");
-                    databaseUserLbl.setText("Local Manager Database User(optional):");                  
-                    databasePwdLbl.setText("Local Manager Databease Password(optional):");
+                    localManagerIPLbl.setText("Local Manager IP:");
+                    databaseUserLbl.setText("Local Manager Database User:");                  
+                    databasePwdLbl.setText("Local Manager Databease Password:");
                     
                 } else if (viaDbRbtn.isSelected()) {
                     localManagerIPLbl.setText("Local Manager IP:");
                     databaseUserLbl.setText("Local Manager Database User:");                  
-                    databasePwdLbl.setText("Local Manager Databease Password:");
+                    databasePwdLbl.setText("Local Manager Database Password:");
                     chooseBtn.setVisible(false);
                     fileTxt.setVisible(false);
                 }
@@ -284,10 +292,10 @@ public class AutomatedWizardStep2 extends WizardPane {
         Label CO2Lbl = new Label("Process CO2 Value");
         
         Label unitTemp = new Label("\u00b0C");
-        Label unitrH = new Label("\u0025");
+        Label unitrH = new Label("\u0025rH");
         Label unitCO2 = new Label("\u2030");
         
-        Label helpTextLbl = new Label("Values beyond process vallue boundaries will be marked as erroneous. Choose carefully! ");
+        Label helpTextLbl = new Label("Values beyond process value boundaries will be marked as erroneous. Choose carefully! ");
         
         minTempTxt = new TextField("10");
         //minTempTxt.setPromptText("Min Temp in \u00b0C");
@@ -303,6 +311,21 @@ public class AutomatedWizardStep2 extends WizardPane {
         //minCo2Txt.setPromptText("Min CO2 in \u2030");
         maxCo2Txt = new TextField("4000");
         //maxCo2Txt.setPromptText("Max Co2 in \u2030");
+        
+        
+        
+        
+       
+       
+        final Separator separator = new Separator();
+       
+
+        
+
+        //separator.setMaxWidth(40);
+        
+       
+        
         
         defaultValGP.addRow(0, qwe, min, max);
         defaultValGP.addRow(1, tempLbl, minTempTxt, maxTempTxt,unitTemp);
@@ -320,10 +343,15 @@ public class AutomatedWizardStep2 extends WizardPane {
         bottomGP.addRow(1, labelVBox);
         bottomGP.addRow(2, errorLbl);
         
+        VBox lala = new VBox(new Label("Set Process Boundaries:\n\n"), helpTextLbl, defaultValGP);
         
-        root.setCenter(new VBox(helpTextLbl, defaultValGP));
+        lala.setAlignment(Pos.TOP_LEFT);
+        
+        lala.setPadding(new Insets(20, 20, 20, 20));
+        
+        root.setCenter(lala);
         root.setBottom(bottomGP);
-        root.setTop(gridpane);
+        root.setTop(new VBox(gridpane, separator));
         return root;
     }
     
@@ -361,6 +389,7 @@ public class AutomatedWizardStep2 extends WizardPane {
                             wizardSelectedObject.setCurrentSelectedBuildingObject(wizardSelectedObject.getCurrentSelectedBuildingObject().getChildren().get(0));
                             Platform.runLater(() ->creationStatus.setVisible(false));
                             Platform.runLater(() ->doneLbl.setVisible(true));
+                            Platform.runLater(() ->alert.showAndWait());
                             
                             ObservableList<ButtonType> list = getButtonTypes();
                             for (ButtonType type : list) {
@@ -372,12 +401,7 @@ public class AutomatedWizardStep2 extends WizardPane {
                             }
                             
                             
-                           /* Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Automated Structure Creator");
-                            alert.setHeaderText(null);
-                            alert.setContentText("JEVis Structure Created Sucessfully");
-
-                            Optional<ButtonType> result = alert.showAndWait();*/
+                           
                         } catch (Exception ex) {
                             Platform.runLater(() ->errorLbl.setVisible(true));  
                             Platform.runLater(() ->errorLbl.setText(ex.getMessage()));

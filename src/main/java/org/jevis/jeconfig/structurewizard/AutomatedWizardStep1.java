@@ -100,7 +100,7 @@ public class AutomatedWizardStep1 extends WizardPane {
         BorderPane root = new BorderPane();
         GridPane gridpane = new GridPane();
         
-         Label descriptionLbl = new Label("Select the Building to create the Structure");
+         Label descriptionLbl = new Label("Select the JEVis Building Node to create the Structure");
          
         Label newBuildingLbl = new Label("New Building Name");
 
