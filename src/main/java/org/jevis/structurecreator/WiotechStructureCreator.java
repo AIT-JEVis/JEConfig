@@ -132,7 +132,7 @@ public class WiotechStructureCreator {
      * @param buildingId building node id, where the structure has to be created
      * 
      */
-    public void createStructure(ObjectTree tree, JEVisObject buildingObject){
+    public void createStructure(ObjectTree tree, JEVisObject buildingObject) throws JEVisException{
         // used only for JEConfig tree updates
         this.tree = tree;
         
@@ -157,6 +157,30 @@ public class WiotechStructureCreator {
                 writeToJEVis(id, "Enabled", true);
             }
             
+            
+            
+            
+            
+        ObjectAndBoolean battSQLCD = createObjectCheckNameExistance(mysqlServer.getJEVisObject().getID(), 
+                "SQL Channel Directory", "Battery Channel Directory");
+        
+        ObjectAndBoolean battChannel = createObjectCheckNameExistance(battSQLCD.getJEVisObject().getID(),"SQL Channel", "SQL Channel");    
+        if(battChannel.isNew){
+                long id = battChannel.getJEVisObject().getID();
+                writeToJEVis(id, "Column ID", "MAC");
+                writeToJEVis(id, "Column Timestamp", "Time");
+                writeToJEVis(id, "Column Value", "Voltage");
+                writeToJEVis(id, "Table", "devices_battery_status");
+                writeToJEVis(id, "Timestamp Format", "yyyy-MM-dd HH:mm:ss.s");
+              
+            }    
+        ObjectAndBoolean battSqlDPD = createObjectCheckNameExistance(battChannel.getJEVisObject().getID(), "SQL Data Point Directory", "DPD");
+        
+        
+        
+        
+        
+        
         ObjectAndBoolean dataDirectory = createObjectCheckNameExistance(buildingObject.getID(), "Data Directory", "Data Directory");
         
         // Create the JEVis Structure for every sensor
@@ -180,6 +204,15 @@ public class WiotechStructureCreator {
                 if(device.isNew){
                     long id =device.getJEVisObject().getID();
                     writeToJEVis(id, "MAC",sensor.getName());
+                    ObjectAndBoolean batData = createObjectCheckNameExistance(device.getJEVisObject().getID(), "Data", "Battery");
+                    ObjectAndBoolean battSqlDP = createObjectCheckNameExistance(battSqlDPD.getJEVisObject().getID(), "SQL Data Point", device.getJEVisObject().getAttribute("MAC").getLatestSample().getValueAsString());
+                    if(battSqlDP.isNew){
+                   
+                    writeToJEVis(battSqlDP.getJEVisObject().getID(), "ID", device.getJEVisObject().getAttribute("MAC").getLatestSample().getValue());
+                    writeToJEVis(battSqlDP.getJEVisObject().getID(), "Target", batData.getJEVisObject().getID().toString());
+                   
+
+                } 
                 }
                 
             ObjectAndBoolean data = createObjectCheckNameExistance(device.getJEVisObject().getID(), "Data", sensor.getSymbol());
@@ -216,6 +249,8 @@ public class WiotechStructureCreator {
             if(data.isNew){
                 writeToJEVis(sqlDP.getJEVisObject().getID(), "Target", data.getJEVisObject().getID().toString());
             }
+            
+            
         }
         
         // Update the JEVis tree in a new ??Thread??
