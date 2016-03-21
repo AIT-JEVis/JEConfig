@@ -75,7 +75,7 @@ public class ManualWizardStep6 extends WizardPane {
         commitObject();
         for (int i = 0; i < wizardSelectedObject.getCurrentTemplateObjects().size(); i++) {
             try {
-                System.out.println(wizardSelectedObject.getCurrentTemplateObjects().get(i).getJEVisClass().getName());
+                //System.out.println(wizardSelectedObject.getCurrentTemplateObjects().get(i).getJEVisClass().getName());
                 if (wizardSelectedObject.getCurrentTemplateObjects().get(i).getJEVisClass().getName().endsWith("Data Point Directory")) {
                     wizardSelectedObject.setCurrentDataPointDirectory(wizardSelectedObject.getCurrentTemplateObjects().get(i));
                 }

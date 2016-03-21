@@ -166,11 +166,10 @@ public class ManualWizardStep7 extends WizardPane {
                                 // Create the samples  for the Target and Value Identifier attribute.
                                 JEVisAttribute attributeTarget = newDataPointObject.getAttribute("Target");
                                 attributeTarget.buildSample(new DateTime(), newDataObject.getID()).commit();
-                                
+
                                 //Die neue Version hat 'Value Identifier' attribut nicht! Value Identifier--> Objectname zb. Data001
 //                              JEVisAttribute attributeValueIdentifier = newDataPointObject.getAttribute("Value Identifier");
 //                              attributeValueIdentifier.buildSample(new DateTime(), pair.getValue().get(2)).commit();
-
                             }
                         } catch (JEVisException ex) {
                             Logger.getLogger(ManualWizardStep1.class.getName()).log(Level.SEVERE, null, ex);
