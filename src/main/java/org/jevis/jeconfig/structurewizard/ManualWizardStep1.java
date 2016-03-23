@@ -167,7 +167,7 @@ public class ManualWizardStep1 extends WizardPane {
                 tree.getSelectionModel().select(parentItem);
             }
         });
-
+        parentItem.setExpanded(false);
         classComboBox.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -191,6 +191,8 @@ public class ManualWizardStep1 extends WizardPane {
                         tree.getSelectionModel().select(parentItem);
                     }
                 });
+                parentItem.setExpanded(false);
+               
             }
         });
 
@@ -221,7 +223,7 @@ public class ManualWizardStep1 extends WizardPane {
                     wizardSelectedObject.setCurrentDataDirectory(child.getValue());
                     checkDataDirectory = true;
                 }
-
+                System.out.println(child.getValue().getName());
                 searchTree(child, expand);
             }
         }
