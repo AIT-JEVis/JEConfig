@@ -91,10 +91,9 @@ public class GraphPlugin implements Plugin {
             border = new BorderPane();
 
             final SwingNode swingNode = new SwingNode();
+            border.setCenter(swingNode);
 
             createSwingContent(swingNode);
-
-            border.setCenter(swingNode);
 
 //            border.setCenter(lineChart);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
