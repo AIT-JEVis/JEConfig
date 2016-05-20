@@ -51,10 +51,12 @@ import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.object.extension.BasicMathExtension;
 import org.jevis.jeconfig.plugin.object.extension.LinkExtension;
 import org.jevis.jeconfig.plugin.object.extension.MemberExtension;
 import org.jevis.jeconfig.plugin.object.extension.RootExtension;
 import org.jevis.jeconfig.plugin.object.extension.PermissionExtension;
+import org.jevis.jeconfig.plugin.object.extension.ProcessChainExtension;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -174,11 +176,14 @@ public class ObjectEditor {
 
                 List<TitledPane> taps = new ArrayList<>();
                 extensions = new ArrayList<>();
+
                 extensions.add(new GenericAttributeExtension(obj));
+//                extensions.add(new BasicMathExtension(obj));
                 extensions.add(new MemberExtension(obj));
                 extensions.add(new PermissionExtension(obj));
                 extensions.add(new RootExtension(obj));
                 extensions.add(new LinkExtension(obj));
+                extensions.add(new ProcessChainExtension(obj));
 
                 for (final ObjectEditorExtension ex : extensions) {
                     if (ex.isForObject(obj)) {

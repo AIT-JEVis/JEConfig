@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
-import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -44,7 +43,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -67,7 +65,7 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.14 2015-07-27");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.16 2015-12-03");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     final Configuration _config = new Configuration();
@@ -83,13 +81,9 @@ public class JEConfig extends Application {
 
     @Override
     public void init() throws Exception {
-        super.init(); //To change body of generated methods, choose Tools | Templates.
-//        System.out.println("Codebase: " + getHostServices().getCodeBase());
-//        System.out.println("getDocumentBase: " + getHostServices().getDocumentBase());
+        super.init();
         Parameters parameters = getParameters();
-
         _config.parseParameters(parameters);
-
     }
 
     @Override
@@ -129,23 +123,21 @@ public class JEConfig extends Application {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                System.out.println("Login value changed: " + newValue);
                 if (newValue) {
                     _mainDS = login.getDataSource();
                     ds = _mainDS;
                     _currentUser = new User(ds);
 
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            FadeTransition ft = new FadeTransition(Duration.millis(1500), login);
-                            ft.setFromValue(1.0);
-                            ft.setToValue(0);
-                            ft.setCycleCount(1);
-                            ft.play();
-                        }
-                    });
-
+//                    Platform.runLater(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            FadeTransition ft = new FadeTransition(Duration.millis(1500), login);
+//                            ft.setFromValue(1.0);
+//                            ft.setToValue(0);
+//                            ft.setCycleCount(1);
+//                            ft.play();
+//                        }
+//                    });
                     JEConfig.PROGRAMM_INFO.setJEVisAPI(ds.getInfo());
                     JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
                     JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);

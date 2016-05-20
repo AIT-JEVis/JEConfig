@@ -57,8 +57,8 @@ public class TopMenu extends MenuBar {
         MenuItem importXML = new MenuItem("XML");
         MenuItem importJSON = new MenuItem("JEVis Data Files");
 
-        subMenuImport.getItems().addAll(importCSV, importXML, importJSON);
-        menuFile.getItems().add(new MenuItem("New"));
+        subMenuImport.getItems().addAll(importCSV);//, importXML, importJSON);
+//        menuFile.getItems().add(new MenuItem("New"));
         menuFile.getItems().add(new SeparatorMenuItem());
         menuFile.getItems().add(subMenuImport);
         MenuItem exit = new MenuItem("Exit");
@@ -93,8 +93,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        menuEdit.getItems().addAll(copie, delete, rename);
-
+//        menuEdit.getItems().addAll(copie, delete, rename);
         // --- Menu View
         Menu menuView = new Menu("View");
 

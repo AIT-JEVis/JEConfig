@@ -28,11 +28,16 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -100,6 +105,27 @@ public class PluginManager {
         tabPane = new TabPane();
         tabPane.setSide(Side.LEFT);
 
+        //TMP soution to hide the development if Graph
+        final KeyCombination openGraph = KeyCodeCombination.keyCombination("Ctrl+Alt+g");
+        JEConfig.getStage().getScene().addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+
+            @Override
+            public void handle(KeyEvent event) {
+
+                if (openGraph.match(event)) {
+                    System.out.println("JEGraph hotkey");
+                    Plugin plugin = new GraphPlugin(_ds, "Graph");
+                    _plugins.add(plugin);
+                    Tab pluginTab = new Tab(plugin.getName());
+                    pluginTab.setContent(plugin.getConntentNode());
+                    tabPane.getTabs().add(pluginTab);
+                    pluginTab.setGraphic(plugin.getIcon());
+                }
+
+            }
+        }
+        );
+
         toolbar.setStyle("-fx-background-color: #CCFF99;");
 //        AnchorPane.setTopAnchor(toolbar, 0.0);
 //        AnchorPane.setLeftAnchor(toolbar, 0.0);
@@ -156,16 +182,19 @@ public class PluginManager {
             }
         });
 
-        if (_watermark) {
-            VBox waterBox = new VBox();
-            //TODO better load the watermark from an JEVis Object and not from css
-            waterBox.setId("watermark");
-            waterBox.setStyle(null);
-            waterBox.setDisable(true);
-            box.getChildren().addAll(tabPane, waterBox);
-        } else {
-            box.getChildren().addAll(tabPane);
-        }
+        //Watermark is disabled
+        //Todo: configure via start parameter
+//        if (_watermark) {
+//            VBox waterBox = new VBox(); //TODO better load the
+//            waterBox.setId("watermark");
+//            waterBox.setStyle(null);
+//            waterBox.setDisable(true);
+//            box.getChildren().addAll(tabPane,
+//                    waterBox);
+//        } else {
+//            box.getChildren().addAll(tabPane);
+//        }
+        box.getChildren().addAll(tabPane);
 
         return box;
     }

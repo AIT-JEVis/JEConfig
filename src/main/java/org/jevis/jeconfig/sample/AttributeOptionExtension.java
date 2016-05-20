@@ -29,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
@@ -66,6 +67,13 @@ public class AttributeOptionExtension implements SampleEditorExtension {
         MenuItem removeMenuItem = new MenuItem("Remove Option");
         MenuItem addMenuItem = new MenuItem("Add new Option");
         menu.getItems().addAll(addMenuItem, removeMenuItem);
+
+        try {
+            Menu addProcess = new AddProcessChainOptionMenuItem(treeview, _att.getDataSource());
+            menu.getItems().add(addProcess);
+        } catch (JEVisException ex) {
+            Logger.getLogger(AttributeOptionExtension.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         addMenuItem.setOnAction(new EventHandler<ActionEvent>() {
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -535,7 +535,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
 //                }
                         String name = dia.getCreateName();
                         if (dia.getCreateCount() > 1) {
-                            name += " " + i;
+                            name += " " + (i + 1);
                         }
 
                         JEVisObject newObject = parent.buildObject(name, dia.getCreateClass());
@@ -771,7 +771,9 @@ public class ObjectTree extends TreeView<JEVisObject> {
         } else if (re == CopyObjectDialog.Response.LINK) {
             buildLinkObject(dragObj, targetParent, dia.getCreateName());
         } else if (re == CopyObjectDialog.Response.COPY) {
+//            System.out.println("Copy count: " + dia.getCreateCount());
             for (int i = 0; i < dia.getCreateCount(); ++i) {
+//                System.out.println("Copy #" + i);
                 copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isRecursion());
             }
 

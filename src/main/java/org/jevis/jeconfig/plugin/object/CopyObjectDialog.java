@@ -89,6 +89,7 @@ public class CopyObjectDialog {
 //    final RadioButton clone = new RadioButton("Clone");
     final CheckBox recursion = new CheckBox("Include substructure");
     final CheckBox includeSamples = new CheckBox("Include data");
+    final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
     public static enum Response {
 
@@ -106,12 +107,13 @@ public class CopyObjectDialog {
     }
 
     public boolean isRecursion() {
-        return includeSamples.isSelected();
+        return recursion.isSelected();
     }
 
     public int getCreateCount() {
-        if (createCount > 0 && createCount < 100) {
-            return createCount;
+
+        if (count.getNumber().intValue() > 0 && count.getNumber().intValue() < 500) {
+            return count.getNumber().intValue();
         } else {
             return 1;
         }
@@ -232,7 +234,6 @@ public class CopyObjectDialog {
         final Label nameLabel = new Label("Name:");
         final Label countLabel = new Label("Count:");
 
-        final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
         final Label info = new Label("Test");
         info.wrapTextProperty().setValue(true);
 //        info.setPrefRowCount(4);
@@ -351,7 +352,7 @@ public class CopyObjectDialog {
         HBox nameBox = new HBox(5);
         nameBox.getChildren().setAll(nameLabel, nameField);
         nameBox.setAlignment(Pos.CENTER_LEFT);
-        HBox countBox = new HBox(5);
+        final HBox countBox = new HBox(5);
         countBox.getChildren().setAll(countLabel, count);
         countBox.setAlignment(Pos.CENTER_LEFT);
 

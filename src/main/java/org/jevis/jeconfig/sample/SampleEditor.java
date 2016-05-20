@@ -59,12 +59,11 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.DialogHeader;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.JsonProcessOption;
-import org.jevis.commons.dataprocessing.ProcessOptions;
-import org.jevis.commons.dataprocessing.ProcessChains;
-import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.BasicProcess;
+import org.jevis.commons.dataprocessing.BasicProcessOption;
+import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.ProcessChains;
+import org.jevis.commons.dataprocessing.ProcessOptions;
 import org.jevis.commons.dataprocessing.function.AggrigatorFunction;
 import org.jevis.commons.dataprocessing.function.InputFunction;
 import org.jevis.jeconfig.JEConfig;
@@ -123,7 +122,7 @@ public class SampleEditor {
         final Stage stage = new Stage();
 
         _attribute = attribute;
-        stage.setTitle("Sample Editor");
+        stage.setTitle("Attribute Editor");
         stage.initModality(Modality.NONE);
         stage.initOwner(owner);
 
@@ -347,9 +346,13 @@ public class SampleEditor {
 
         try {
             JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
+
             _dataProcessors = parentObj.getChildren(dpClass, true);
-            for (JEVisObject configObject : _dataProcessors) {
-                proNames.add(configObject.getName());
+            if (_dataProcessors != null) {
+
+                for (JEVisObject configObject : _dataProcessors) {
+                    proNames.add(configObject.getName());
+                }
             }
 
         } catch (Exception ex) {
@@ -537,13 +540,11 @@ public class SampleEditor {
                     samples.addAll(att.getSamples(from, until));
                 }
 
+            } else if (aggrigate != null) {
+                aggrigate.setSubProcesses(Arrays.asList(_dataProcessor));
+                samples.addAll(aggrigate.getResult());
             } else {
-                if (aggrigate != null) {
-                    aggrigate.setSubProcesses(Arrays.asList(_dataProcessor));
-                    samples.addAll(aggrigate.getResult());
-                } else {
-                    samples.addAll(_dataProcessor.getResult());
-                }
+                samples.addAll(_dataProcessor.getResult());
             }
 
             for (SampleEditorExtension ex : extensions) {

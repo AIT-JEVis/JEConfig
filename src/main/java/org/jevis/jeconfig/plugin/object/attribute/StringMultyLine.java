@@ -103,7 +103,7 @@ public class StringMultyLine implements AttributeEditor {
         if (_field == null) {
             _field = new TextArea();
             _field.setPrefWidth(500);//TODO: remove this workaround
-            _field.setPrefRowCount(5);
+            _field.setPrefRowCount(10);
             _field.setWrapText(true);
             _field.setDisable(_readOnly);
 
