@@ -122,7 +122,7 @@ public class AttributeSettingsDialog {
         buttonPanel.setMaxHeight(25);
 
         _displaySampleRate = new SampleRateNode(att.getDisplaySampleRate());
-        _inputSampleRate = new SampleRateNode(Period.minutes(15));
+        _inputSampleRate = new SampleRateNode(att.getInputSampleRate());
 
         Tab displayTab = new Tab("Data Visualisation");
         upDisplay = new UnitPanel(att.getDataSource(), att.getDisplayUnit(), true);

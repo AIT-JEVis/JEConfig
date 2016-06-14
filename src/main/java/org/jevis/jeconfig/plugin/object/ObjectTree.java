@@ -53,6 +53,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
+import javax.measure.unit.Unit;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisDataSource;
@@ -60,12 +61,20 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
+import org.jevis.api.JEVisUnit.Prefix;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.InfoDialog;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.bulkedit.CreateTable;
+import org.jevis.jeconfig.bulkedit.EditTable;
+import org.jevis.jeconfig.structurewizard.WizardMain;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 /**
  *
@@ -575,9 +584,241 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
     }
 
+    //@AITBilal - Create a new Table!
+    public void fireEventCreateTable(final JEVisObject parent) throws JEVisException {
+        CreateTable table = new CreateTable();
+        if (parent != null) {
+            if (table.show(JEConfig.getStage(), null, parent, false, CreateTable.Type.NEW, null) == CreateTable.Response.YES) {
+                for (int i = 0; i < table.getPairList().size(); i++) {
+                    JEVisObject newObject = null;
+                    try {
+                        if (table.getCreateClass().getName().equals("Data")) {
+                            String objectName = table.getPairList().get(i).getKey();
+                            newObject = parent.buildObject(objectName, table.getCreateClass());
+                            newObject.commit();
+
+                            List<JEVisAttribute> attributes = newObject.getAttributes();
+                             //Counter ist für die attribute. Es anfangt ab Spalte "Input Sample Rate" zu zahlen.
+                            int counter = 6;
+                            for (int j = 0; j < attributes.size(); j++) {
+                                if (attributes.get(j).getName().equals("Value")) {
+
+                                    JEVisAttribute attributeValue = attributes.get(j);
+
+                                    if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
+                                        attributeValue.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                    } else {
+                                        String displaySymbol = table.getPairList().get(i).getValue().get(1);
+                                        if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
+                                            attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", Prefix.NONE));
+                                        } else {
+                                            JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
+                                            attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
+                                        }
+                                    }
+
+                                    if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
+                                        attributeValue.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                    } else {
+                                        String inputSymbol = table.getPairList().get(i).getValue().get(4);
+                                        if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
+                                            attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", Prefix.NONE));
+                                        } else {
+                                            JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
+                                            attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
+                                        }
+                                    }
+
+                                    if (table.getPairList().get(i).getValue().get(2).isEmpty()) {
+                                        attributeValue.setDisplaySampleRate(Period.parse("PT0S"));//Period.ZERO
+                                    } else {
+                                        String displaySampleRate = table.getPairList().get(i).getValue().get(2);
+                                        attributeValue.setDisplaySampleRate(Period.parse(displaySampleRate));
+                                    }
+
+                                    if (table.getPairList().get(i).getValue().get(5).isEmpty()) {
+                                        attributeValue.setInputSampleRate(Period.parse("PT0S"));//Period.ZERO
+                                    } else {
+                                        String inputSampleRate = table.getPairList().get(i).getValue().get(5);
+                                        attributeValue.setInputSampleRate(Period.parse(inputSampleRate));
+                                    }
+                                    attributeValue.commit();
+                                } else {
+                                    attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(counter)).commit();
+                                    counter++;
+                                }
+                            }
+
+                        } else {
+                            String objectName = table.getPairList().get(i).getKey();
+                            newObject = parent.buildObject(objectName, table.getCreateClass());
+                            newObject.commit();
+
+                            List<JEVisAttribute> attributes = newObject.getAttributes();
+                            for (int j = 0; j < attributes.size(); j++) {
+                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
+                            }
+                        }
+
+                        final TreeItem<JEVisObject> newTreeItem = buildItem(newObject);
+                        TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
+                        parentItem.getChildren().add(newTreeItem);
+
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                getSelectionModel().select(newTreeItem);
+                            }
+                        });
+                    } catch (JEVisException ex) {
+                        Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+
+                        if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {
+                            InfoDialog info = new InfoDialog();
+                            info.show(JEConfig.getStage(), "Waring", "Could not create user", "Could not create new user because this user exists already.");
+
+                        } else {
+                            ExceptionDialog errorDia = new ExceptionDialog();
+                            errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAMM_INFO);
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //@AITBilal - Edit a new Table!
+    public void fireEventEditTable(final JEVisObject parent) throws JEVisException {
+        EditTable table = new EditTable();
+        if (parent != null) {
+            if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.EDIT, null) == EditTable.Response.YES) {
+                for (int i = 0; i < table.getListChildren().size(); i++) {
+                    JEVisObject childObject = null;
+
+                    if (table.getSelectedClass().getName().equals("Data")) {
+                        childObject = table.getListChildren().get(i);
+//                      childObject.commit();
+                        List<JEVisAttribute> attributes = childObject.getAttributes();
+                        //Counter ist für die attribute. Es anfangt ab Spalte "Input Sample Rate" zu zahlen.
+                        int counter = 6;
+                        for (int j = 0; j < attributes.size(); j++) {
+                            if (attributes.get(j).getName().equals("Value")) {
+                                JEVisAttribute attributeValue = attributes.get(j);
+
+                                //get objekt mit ID from Tabelle
+                                if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
+                                    attributeValue.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                } else {
+                                    String displaySymbol = table.getPairList().get(i).getValue().get(1);
+                                    if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
+                                        attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", Prefix.NONE));
+                                    } else {
+                                        JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
+                                        attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
+                                    }
+                                }
+
+                                if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
+                                    attributeValue.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                } else {
+                                    String inputSymbol = table.getPairList().get(i).getValue().get(4);
+                                    if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
+                                        attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", Prefix.NONE));
+                                    } else {
+                                        JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
+                                        attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
+                                    }
+                                }
+
+                                if (table.getPairList().get(i).getValue().get(2).isEmpty()) {
+                                    attributeValue.setDisplaySampleRate(Period.parse("PT0S"));//Period.ZERO
+                                } else {
+                                    String displaySampleRate = table.getPairList().get(i).getValue().get(2);
+                                    attributeValue.setDisplaySampleRate(Period.parse(displaySampleRate));
+                                }
+
+                                if (table.getPairList().get(i).getValue().get(5).isEmpty()) {
+                                    attributeValue.setInputSampleRate(Period.parse("PT0S"));//Period.ZERO
+                                } else {
+                                    String inputSampleRate = table.getPairList().get(i).getValue().get(5);
+                                    attributeValue.setInputSampleRate(Period.parse(inputSampleRate));
+                                }
+                                
+                                attributeValue.commit();
+                            } else {
+                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(counter)).commit();
+                                counter++;
+                            }
+                        }
+
+                    } else {
+                        childObject = table.getListChildren().get(i);
+
+//                      childObject.commit();
+                        List<JEVisAttribute> attributes = childObject.getAttributes();
+
+                        for (int j = 0; j < attributes.size(); j++) {
+                            if (attributes.get(j).getLatestSample() == null) {
+                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
+                            } else if (!attributes.get(j).getLatestSample().getValueAsString().equals(table.getPairList().get(i).getValue().get(j))) {
+                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
+                            }
+                        }
+                    }
+                }
+
+                //sort the list and refresh the tree
+                final TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
+                //parentItem.setExpanded(false);
+
+                sortTheChildren(parentItem.getChildren());
+
+                for (int i = 0; i < table.getListChildren().size(); i++) {
+                    getObjectGraphic(table.getListChildren().get(i)).update();
+                }
+
+                //parentItem.setExpanded(true);
+            }
+        }
+    }
+
+    //@AITBilal - Create a new Wizard-Table!
+    //parent kommt von --> tree.fireEventCreateWizard(tree.getSelectedObject());
+    public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
+        WizardMain wizardmain = new WizardMain(parent, this);
+        if (parent != null) {
+            // parent.getJEVisClass().getName().equals("Monitored Object Directory")
+            if (parent.getName().equals("Monitored Object Directory")) {
+                wizardmain.showAndWait();
+            } else {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("This is not a Monitored Object Directory!");
+                alert.showAndWait();
+            }
+        }
+    }
+
     //TODO i dont like this way
     public ObjectEditor getEditor() {
         return _editor;
+    }
+
+    public static void sortTheChildren(ObservableList<TreeItem<JEVisObject>> list) {
+        Comparator<TreeItem<JEVisObject>> sort = new Comparator<TreeItem<JEVisObject>>() {
+            @Override
+            public int compare(TreeItem<JEVisObject> o1, TreeItem<JEVisObject> o2) {
+                try {
+                    return o1.getValue().getName().compareTo(o2.getValue().getName());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    return 0;
+                }
+            }
+        };
+        FXCollections.sort(list, sort);
     }
 
     public static void sortList(ObservableList<TreeItem<JEVisObject>> list) {
