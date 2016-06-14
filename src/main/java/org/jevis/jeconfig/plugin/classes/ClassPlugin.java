@@ -39,6 +39,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.unit.UnitPlugin;
 
 /**
  * The Classplugin is an GUI component which allows the user to configure the
@@ -161,7 +162,19 @@ public class ClassPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, reload, Constants.Plugin.Command.RELOAD);
 
-            toolBar.getItems().addAll(save, newB, delete, sep1);
+            ToggleButton addTable = new ToggleButton("", JEConfig.getImage("add_table.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(addTable);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, addTable, Constants.Plugin.Command.ADD_TABLE);
+
+            ToggleButton editTable = new ToggleButton("", JEConfig.getImage("edit_table.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(editTable);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, editTable, Constants.Plugin.Command.EDIT_TABLE);
+
+            ToggleButton createWizard = new ToggleButton("", JEConfig.getImage("create_wizard.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(createWizard);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, createWizard, Constants.Plugin.Command.CREATE_WIZARD);
+
+            toolBar.getItems().addAll(save, newB, delete, sep1, addTable, editTable,createWizard);
             toolBar.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
         }
         return toolBar;
