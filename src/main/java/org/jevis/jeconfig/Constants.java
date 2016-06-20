@@ -39,6 +39,9 @@ public interface Constants {
             public static int EXPAND = 5;
             public static int COLLAPSE = 6;
             public static int RELOAD = 7;
+            public static int ADD_TABLE = 8;
+            public static int EDIT_TABLE = 9;
+            public static int CREATE_WIZARD = 10;
         }
     }
 
