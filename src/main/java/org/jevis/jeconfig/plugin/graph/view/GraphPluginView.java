@@ -103,7 +103,6 @@ public class GraphPluginView implements Plugin, Observer {
         if (border == null) {
             border = new BorderPane();
             chartView.drawDefaultAreaChart();
-            border.setTop(chartView.getLegend());
             border.setCenter(chartView.getAreaChartRegion());
 //            border.setCenter(new Button("click me"));
 
