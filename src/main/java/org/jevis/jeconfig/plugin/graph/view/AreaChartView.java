@@ -66,6 +66,8 @@ public class AreaChartView implements Observer {
 //        table.prefHeightProperty().bind(Bindings.size(table.getItems()).multiply(table.getFixedCellSize()).add(30));
         TableColumn name = new TableColumn("Name");
         name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
+        TableColumn colorCol = new TableColumn("Color");
+        colorCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("color"));
         TableColumn value = new TableColumn("Value");
         value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
         TableColumn dateCol = new TableColumn("Date");
@@ -76,7 +78,7 @@ public class AreaChartView implements Observer {
         tableData.add(tableEntry);
         table.setItems(tableData);
 
-        table.getColumns().addAll(name, value, dateCol);
+        table.getColumns().addAll(name, colorCol, value, dateCol);
     }
 
     public XYChart getAreaChart() {
@@ -135,6 +137,7 @@ public class AreaChartView implements Observer {
             TreeMap<Double, JEVisSample> sampleMap = new TreeMap();
 
             TableEntry tableEntry = new TableEntry(singleRow.getObject().getName());
+            tableEntry.setColor(toRGBCode(singleRow.getColor()));
             singleRow.setTableEntry(tableEntry);
             tableData.add(tableEntry);
 
@@ -166,23 +169,22 @@ public class AreaChartView implements Observer {
 
         areaChart = new AreaChart<>(dateAxis, numberAxis, series);
         areaChart.applyCss();
-//        for (int i = 0; i < hexColors.size(); i++) {
-//            Color currentColor = hexColors.get(i);
-//            System.out.println("cirght" + currentColor.getBrightness());
-//            Color brighter = currentColor.deriveColor(0, 0, 30, 0);
-//            String hexColor = toRGBCode(currentColor);
-//            String hexBrighter = toRGBCode(brighter);
-//            String preIdent = ".default-color" + i;
-//            Node node = areaChart.lookup(preIdent + ".chart-series-area-fill");
-//            node.setStyle("-fx-fill: linear-gradient("+hexColor+", "+hexBrighter+");"
-//                    + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
-//                    + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
-//
-//            Node nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
-//            // Set the first series fill to translucent pale green
-//            nodew.setStyle("-fx-stroke: "+hexColor+"; -fx-stroke-width: 1px; ");
-//
-//        }
+        for (int i = 0; i < hexColors.size(); i++) {
+            Color currentColor = hexColors.get(i);
+            System.out.println("cirght" + currentColor.getBrightness());
+            Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
+            String hexColor = toRGBCode(currentColor) + "55";
+            String hexBrighter = toRGBCode(brighter) + "55";
+            String preIdent = ".default-color" + i;
+            Node node = areaChart.lookup(preIdent + ".chart-series-area-fill");
+            node.setStyle("-fx-fill: linear-gradient(" + hexBrighter + "," + hexBrighter + ");"
+                    + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
+                    + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
+
+            Node nodew = areaChart.lookup(preIdent + ".chart-series-area-line");
+            // Set the first series fill to translucent pale green
+            nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+        }
 //        int i = 0;
 //        for (Node n : areaChart.lookupAll(".series0")) {
 //            n.setStyle("-fx-fill: blue,white;");
