@@ -17,120 +17,126 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.graph;
+package org.jevis.jeconfig.plugin.graph.view;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.Observable;
+import java.util.Observer;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingNode;
 import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javax.swing.JButton;
-import javax.swing.SwingUtilities;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.graph.GraphController;
+import org.jevis.jeconfig.plugin.graph.data.GraphDataModel;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class GraphPlugin implements Plugin {
-
+public class GraphPluginView implements Plugin, Observer {
+    
+    private ToolBarView toolBarView;
+    private GraphDataModel dataModel;
+    private GraphController controller;
+    private AreaChartView chartView;
+    
     private StringProperty name = new SimpleStringProperty("Graph");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane border;
+    
+    private ToolBar toolBar;
 //    private ObjectTree tf;
 
-    public GraphPlugin(JEVisDataSource ds, String newname) {
+    public GraphPluginView(JEVisDataSource ds, String newname) {
+        dataModel = new GraphDataModel();
+        dataModel.addObserver(this);
+        
+        controller = new GraphController(this, dataModel);
+        toolBarView = new ToolBarView(dataModel, ds);
+        chartView = new AreaChartView(dataModel);
+        
         this.ds = ds;
         name.set(newname);
     }
-
+    
     @Override
     public String getName() {
         return name.get();
     }
-
+    
     @Override
     public void setName(String value) {
         name.set(value);
     }
-
+    
     @Override
     public StringProperty nameProperty() {
         return name;
     }
-
+    
     @Override
     public String getUUID() {
         return id.get();
     }
-
+    
     @Override
     public void setUUID(String newid) {
         id.set(newid);
     }
-
+    
     @Override
     public StringProperty uuidProperty() {
         return id;
     }
-
+    
     @Override
     public Node getConntentNode() {
         if (border == null) {
             border = new BorderPane();
-
-            final SwingNode swingNode = new SwingNode();
-            border.setCenter(swingNode);
-
-            createSwingContent(swingNode);
+            chartView.drawDefaultAreaChart();
+            border.setTop(chartView.getLegend());
+            border.setCenter(chartView.getAreaChartRegion());
+//            border.setCenter(new Button("click me"));
 
 //            border.setCenter(lineChart);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
         }
-
+        
         return border;
     }
-
-    private void createSwingContent(final SwingNode swingNode) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                swingNode.setContent(new JButton("Click me!"));
-            }
-        });
-    }
-
+    
     @Override
     public Node getMenu() {
         return null;
     }
-
+    
     @Override
     public Node getToolbar() {
-        return null;
+        if (toolBar == null) {
+            toolBar = toolBarView.getToolbar(getDataSource());
+        }
+        return toolBar;
     }
-
+    
     @Override
     public JEVisDataSource getDataSource() {
         return ds;
     }
-
+    
     @Override
     public void setDataSource(JEVisDataSource ds) {
         this.ds = ds;
     }
-
+    
     @Override
     public void handelRequest(int cmdType) {
         try {
@@ -154,15 +160,27 @@ public class GraphPlugin implements Plugin {
             }
         } catch (Exception ex) {
         }
-
+        
     }
-
+    
     @Override
     public void fireCloseEvent() {
     }
-
+    
     @Override
     public ImageView getIcon() {
         return JEConfig.getImage("1415314386_Graph.png", 20, 20);
+    }
+    
+    @Override
+    public void update(Observable o, Object arg) {
+        //create new chart
+        System.out.println("update view");
+        System.out.println(chartView.getAreaChart().getTitle());
+//        border.setCenter(new Button("click me"));
+        border.setTop(chartView.getLegend());
+        border.setCenter(chartView.getAreaChartRegion());
+        border.setBottom(chartView.getVbox());
+        
     }
 }

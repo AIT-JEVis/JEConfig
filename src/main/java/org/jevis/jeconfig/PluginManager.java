@@ -28,23 +28,19 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
-import org.jevis.jeconfig.map.MapViewPlugin;
-import org.jevis.jeconfig.plugin.graph.GraphPlugin;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 
 /**
@@ -88,10 +84,10 @@ public class PluginManager {
     public void addPluginsByUserSetting(JEVisObject user) {
         //TODO: load the user an add only the allowed plugins
         _plugins.add(new ObjectPlugin(_ds, "Resources"));
+        _plugins.add(new GraphPluginView(_ds, "Graph"));
         _plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, "Classes"));
         _plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, "Units"));
-        _plugins.add(new GraphPlugin(_ds, "Graph"));
-        _plugins.add(new MapViewPlugin(_ds, "GIS"));
+//        _plugins.add(new MapViewPlugin(_ds, "GIS"));
 
     }
 
@@ -114,7 +110,7 @@ public class PluginManager {
 
                 if (openGraph.match(event)) {
                     System.out.println("JEGraph hotkey");
-                    Plugin plugin = new GraphPlugin(_ds, "Graph");
+                    Plugin plugin = new GraphPluginView(_ds, "Graph");
                     _plugins.add(plugin);
                     Tab pluginTab = new Tab(plugin.getName());
                     pluginTab.setContent(plugin.getConntentNode());
