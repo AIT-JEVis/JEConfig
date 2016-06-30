@@ -65,7 +65,8 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.16 2015-12-03");
+//    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.16 2015-12-03");//old name
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.0.17 2016-06-16");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     final Configuration _config = new Configuration();
@@ -198,7 +199,7 @@ public class JEConfig extends Application {
         scene.getStylesheets().add("/styles/Styles.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
 
-        primaryStage.setTitle("JEConfig");
+        primaryStage.setTitle("JEVis Control Center");
 
         primaryStage.setMaximized(true);
         primaryStage.show();
