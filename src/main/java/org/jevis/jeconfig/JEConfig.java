@@ -37,6 +37,9 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -51,6 +54,7 @@ import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.jeconfig.connectionencoder.ConnectionEncoderWindow;
 import org.jevis.jeconfig.tool.WelcomePage;
 
 /**
@@ -66,7 +70,7 @@ public class JEConfig extends Application {
      * Defines the version information in the about dialog
      */
 //    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.16 2015-12-03");//old name
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.0.17 2016-06-16");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEVis Control Center", "3.0.17 2016-07-18");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
     final Configuration _config = new Configuration();
@@ -215,6 +219,17 @@ public class JEConfig extends Application {
                     ds.disconnect();
                 } catch (JEVisException ex) {
                     Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        //Workaround to show the ConnectionStringCreator
+//        ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
+        final KeyCombination openGraph = KeyCodeCombination.keyCombination("Ctrl+Shift+L");
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent ke) {
+                if (openGraph.match(ke)) {
+                    ConnectionEncoderWindow cew = new ConnectionEncoderWindow(_primaryStage);
                 }
             }
         });

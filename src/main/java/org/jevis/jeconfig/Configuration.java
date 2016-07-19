@@ -26,8 +26,6 @@ import java.util.List;
 import javafx.application.Application;
 import org.jevis.api.JEVisOption;
 import org.jevis.application.ParameterHelper;
-import org.jevis.commons.config.CommonOptions;
-import static org.jevis.commons.config.CommonOptions.FXLogin.FXLogin;
 import org.jevis.commons.config.OptionFactory;
 
 /**
@@ -99,7 +97,7 @@ public class Configuration {
 
     public void parseParameters(Application.Parameters args) {
 
-//        System.out.println("Pars config");
+        System.out.println("Pars config");
         configuration = ParameterHelper.ParseJEVisConfiguration(args);
         for (JEVisOption opt : configuration) {
             if (opt.equals(JECONFIG)) {
