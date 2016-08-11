@@ -85,6 +85,8 @@ public class AutomatedWizardStep2 extends WizardPane {
     TextField fileTxt;
     Button chooseBtn;
     RadioButton fileRbtn;
+    RadioButton delTableRbtn;
+    RadioButton alterTabeRbtn;
 
     TextField minTempTxt;
     TextField maxTempTxt;
@@ -204,15 +206,18 @@ public class AutomatedWizardStep2 extends WizardPane {
                 }
             }
         });
-
+        
+        chooseBtn.setVisible(false);
+        fileTxt.setVisible(false);
+        
         ToggleGroup group = new ToggleGroup();
         fileRbtn = new RadioButton("Load Structure from Wiotech Sensor Config File");
         fileRbtn.setToggleGroup(group);
-        fileRbtn.setSelected(true);
+        
 
         RadioButton viaDbRbtn = new RadioButton("Load Structure from Local Manager");
         viaDbRbtn.setToggleGroup(group);
-
+        viaDbRbtn.setSelected(true);
         group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> ov,
@@ -234,15 +239,22 @@ public class AutomatedWizardStep2 extends WizardPane {
                 }
             }
         });
-
+        
+        
+        delTableRbtn = new RadioButton("Delete all sensors \nCaution, use only for new on-site measurement "
+        		+ "\nRepeat structure creation after sensor sample rate has expired");
+        alterTabeRbtn = new RadioButton("Delete all sensor data from Local Manager");
         int i = 0;
         gridpane.addRow(i++, new Label("Select creation mode:"));
-        gridpane.addRow(i++, fileRbtn, viaDbRbtn);
+        gridpane.addRow(i++,  viaDbRbtn, fileRbtn);
         gridpane.addRow(i++, localManagerIPLbl, localManagerIPTxtf);
         gridpane.addRow(i++, databaseUserLbl, databaseUserTxtf);
         gridpane.addRow(i++, databasePwdLbl, databasePwdTxtf);
         gridpane.addRow(i++, chooseBtn, fileTxt);
         gridpane.addRow(i++, startStructureCreationBtn, creationStatus);
+        gridpane.addRow(i++, alterTabeRbtn);
+        gridpane.addRow(i++, delTableRbtn);
+        
 
         gridpane.setHgap(10);//horizontal gap in pixels 
         gridpane.setVgap(10);//vertical gap in pixels
@@ -349,13 +361,25 @@ public class AutomatedWizardStep2 extends WizardPane {
                         List<Sensor> _result = WiotechStructureCreator.readSensorDetails(fileTxt.getText());
                         wsc = new WiotechStructureCreator(_result, localManagerIPTxtf.getText(), 3306, "db_lm_cbv2",
                                 databaseUserTxtf.getText(), databasePwdTxtf.getText());
+                        if(delTableRbtn.isSelected()){
+                        	wsc.deleteAllSenorTables();
+                        }else if(alterTabeRbtn.isSelected()){
+                        	wsc.deleteAllSenorData();
+                        }
 
                     } else {
                         wsc = new WiotechStructureCreator(localManagerIPTxtf.getText(), 3306, "db_lm_cbv2",
                                 databaseUserTxtf.getText(), databasePwdTxtf.getText());
-
+                        if(delTableRbtn.isSelected()){
+                        	wsc.deleteAllSenorTables();
+                        }else if(alterTabeRbtn.isSelected()){
+                        	wsc.deleteAllSenorData();
+                        }
                         wsc.getSensorDetails();
                     }
+                    
+                    
+                    
                     String[] defaults = new String[6];
                     defaults[0] = minTempTxt.getText();
                     defaults[1] = maxTempTxt.getText();

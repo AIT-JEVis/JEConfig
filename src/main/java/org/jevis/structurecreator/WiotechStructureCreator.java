@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -167,15 +168,22 @@ public class WiotechStructureCreator {
                 if(channel.isNew){
                     long id = channel.getJEVisObject().getID();
                            
-                    writeToJEVis(id, "Column Timestamp", "time");
-                    writeToJEVis(id, "Column Value", "value");
-                    writeToJEVis(id, "Table",sensor.getTable());
-                    writeToJEVis(id, "Timestamp Format", "yyyy-MM-dd HH:mm:ss.s");
+                    writeToJEVis(id, "Query", "SELECT time, value FROM " + sensor.getTable() + " where  time > ?;");
+                    
                 }
                 
-            ObjectAndBoolean sqlDPD = createObjectCheckNameExistance(channel.getJEVisObject().getID(), "SQL Data Point Directory", "DPD");
-            ObjectAndBoolean sqlDP = createObjectCheckNameExistance(sqlDPD.getJEVisObject().getID(), "SQL Data Point", "DP");
-            //Structure with Deivces, not needed anymore!!!! 
+            ObjectAndBoolean sqlDPD = createObjectCheckNameExistance(channel.getJEVisObject().getID(), "SQL Data Point Directory", "SQL Data Point Directory");
+            ObjectAndBoolean sqlDP = createObjectCheckNameExistance(sqlDPD.getJEVisObject().getID(), "SQL Data Point", "SQL Data Point");
+            
+            ObjectAndBoolean sqlVD = createObjectCheckNameExistance(channel.getJEVisObject().getID(), "SQL Variable Directory", "SQL Variable Directory");
+            ObjectAndBoolean sqlV = createObjectCheckNameExistance(sqlVD.getJEVisObject().getID(), "SQL Variable", "SQL Variable");
+            if(sqlV.isNew){
+                long id =sqlV.getJEVisObject().getID();
+                writeToJEVis(id, "Condition", "LastReadout");
+                writeToJEVis(id, "Position", "1");
+                writeToJEVis(id, "Variable Type", "timestamp");
+            }
+            
             ObjectAndBoolean device = createObjectCheckNameExistance(dataDirectory.getJEVisObject().getID(), "Device", sensor.getName());
                 if(device.isNew){
                     long id =device.getJEVisObject().getID();
@@ -214,7 +222,16 @@ public class WiotechStructureCreator {
             }
             
             if(data.isNew){
-                writeToJEVis(sqlDP.getJEVisObject().getID(), "Target", data.getJEVisObject().getID().toString());
+            	long id = sqlDP.getJEVisObject().getID();
+                
+                
+                writeToJEVis(id, "Target Attribute", "Value");
+                writeToJEVis(id, "Target ID", data.getJEVisObject().getID().toString());
+                writeToJEVis(id, "Timestamp Column", "time");
+                writeToJEVis(id, "Timestamp Type", "yyyy-MM-dd HH:mm:ss.S");
+                writeToJEVis(id, "Value Column", "value");
+                writeToJEVis(id, "Value Type", "double");
+                
             }
         }
         
@@ -258,6 +275,68 @@ public class WiotechStructureCreator {
                 }
             }
     }
+    
+    
+    /**
+     * 
+     * Deletes all sensor tables in Local Manager DB
+     * 
+     */
+	public void deleteAllSenorData() throws SQLException {
+
+		String sql_query = "SELECT table_name "+
+		"AS statement "+  
+		"FROM information_schema.TABLES " + 
+		"WHERE TABLE_SCHEMA = 'db_lm_cbv2' "+
+		"AND table_name LIKE 'sensor\\_%'; ";
+		
+		PreparedStatement ps = _con.prepareStatement(sql_query);
+		ResultSet rs = ps.executeQuery();
+		String output ="";
+		
+		
+		
+		 while (rs.next()) {
+			 if(rs.getString(1)!=null){
+				 output = rs.getString(1);
+				 ps = _con.prepareStatement("truncate table " + output + ";");
+				 int updateRs = ps.executeUpdate();
+				 Logger.getLogger(WiotechStructureCreator.class.getName()).log(Level.SEVERE, "truncate table " + output + ";");
+			 }
+         }
+		 
+		 
+	}
+    
+    
+    /**
+     * 
+     * Deletes all sensor tables in Local Manager DB
+     * 
+     */
+	public void deleteAllSenorTables() throws SQLException {
+
+		String sql_query = "SELECT CONCAT( 'DROP TABLE ', GROUP_CONCAT(table_name) , ';' ) "+
+		"AS statement "+  
+		"FROM information_schema.TABLES " + 
+		"WHERE TABLE_SCHEMA = 'db_lm_cbv2' "+
+		"AND table_name LIKE 'sensor\\_%'; ";
+		
+		PreparedStatement ps = _con.prepareStatement(sql_query);
+		ResultSet rs = ps.executeQuery();
+		
+		sql_query = null;
+		 while (rs.next()) {
+			 if(rs.getString(1)!=null){
+				 sql_query = rs.getString(1);
+			 }
+         }
+		 if(sql_query!=null){
+			 ps = _con.prepareStatement(sql_query);
+			 int updateRs = ps.executeUpdate();
+		 }
+	}
+    
     
         public static List<Sensor> readSensorDetails(String path){
 
